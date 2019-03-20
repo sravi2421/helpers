@@ -32,21 +32,51 @@ def plt_metric_by_date(metric_by_date, dates, title, metric_name):
     '''
     plots a metric over a time series
     args:
-        metric_by_date(pandas series):    metric of interest
-        dates(pandas series):             dates to plot over
-        title(str):                       title
-        metric_name(str):                 name of metric, used for y-axis
+        metric_by_date(pandas series, or  
+                       list of pandas series):     metric of interest, list of metrics of interest
+        dates(pandas series):                      dates to plot over
+        title(str):                                title
+        metric_name(str or list of strs):          name of metric, used for y-axis
+                                                   or list of metrics, used by legend
     '''
     formatter = DateFormatter('%m/%d/%y')
     fig, ax = plt.subplots()
     fig.set_size_inches(18,4)
 
-    plt.plot(dates, metric_by_date)
+    if type(metric_by_date)==list:
+        for metric in metric_by_date:
+            plt.plot(dates, metric)
+        plt.legend(metric_name, loc=2)
+    else:
+        plt.plot(dates, metric_by_date)
+        plt.ylabel(metric_name)
+
     ax.xaxis.set_major_formatter(formatter)
     ax.xaxis.set_tick_params(rotation=30, labelsize=10)
     plt.xlabel('Date')
-    plt.ylabel(metric_name)
+
     plt.title(title)
+    plt.show()
+
+    
+def plt_categ_cols(categ_counts, categ_cols):
+    '''
+    plots proportion of categorical values
+    
+    args:
+        categ_counts(pandas df):       a dataframe with the columns, categ_val, categ_prop
+        categ_cols(list):              list of columns to plot
+    '''
+    categ_cols=['device','sex']
+    num_rows = len(categ_cols)//2 + len(categ_cols)%2#2 per row
+    fig = plt.gcf()
+    fig.set_size_inches(18,4*num_rows)
+
+    for i, categ in enumerate(categ_cols, 1):
+        plt.subplot(num_rows, 2, i)
+        plt.barh(categ_counts[categ+'_val'][::-1],categ_counts[categ+'_prop'][::-1])
+        plt.title('{} Column: Proportion of Total'.format(categ))
+
     plt.show()
     
 def visualize_tree(dt, X, warning=True):
@@ -77,7 +107,7 @@ def visualize_tree(dt, X, warning=True):
         return graph
     
     
-def plot_coeffs(lr, X):
+def plt_coeffs(lr, X):
     '''
     Plot all coefficients of a logistic regression model
 

@@ -15,22 +15,29 @@ def top_categoricals(df, categ_cols):
         summary_table (pandas df):  dataframe containing values and counts
     '''
     if len(set(categ_cols))!=len(categ_cols):
-        assert False, 'Ensure no column is repeated'
+            assert False, 'Ensure no column is repeated'
+    total_obs = df.shape[0]
     categ_counts = {col: (list(df[col].value_counts().index[:5]), list(df[col].value_counts()[:5])) for col in categ_cols}
     pd_categ_vals = {categ+'_val':categ_counts[categ][0] for categ in categ_counts}
-    pd_categ_counts = {categ+'_counts':categ_counts[categ][1] for categ in categ_counts}
+    pd_categ_counts = {categ+'_count':categ_counts[categ][1] for categ in categ_counts}
     pd_categ_vals = fill_dict_lists(pd_categ_vals)
     pd_categ_counts = fill_dict_lists(pd_categ_counts)
+
     col_order = []
     for col in categ_cols:
         ##Fill null count
         pd_categ_vals[col+'_val'].append('Null')
-        pd_categ_counts[col+'_counts'].append(df[col].isnull().sum())
+        pd_categ_counts[col+'_count'].append(df[col].isnull().sum())
         ##order the columns correctly
         col_order.append(col+'_val')
-        col_order.append(col+'_counts')
+        col_order.append(col+'_count')
+        col_order.append(col+'_prop')
     summary_table = pd.DataFrame(data = {**pd_categ_counts, **pd_categ_vals})
-    return summary_table[col_order]
+    
+    prop_cols = (
+        (summary_table[pd_categ_counts.keys()]/total_obs)
+        .rename(columns = {'{}_count'.format(col):'{}_prop'.format(col) for col in categ_cols}))
+    return summary_table.join(prop_cols)[col_order]
 
 def fill_dict_lists(dict_):
     '''
