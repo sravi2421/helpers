@@ -6,7 +6,7 @@ import pydotplus
 
 
     
-def plt_histn(*argv):
+def plt_histn(*argv, bins = 25):
     '''
     plots histograms of however many series you provide
     arguments must be provided of the form: series, title, series, title.....
@@ -23,11 +23,11 @@ def plt_histn(*argv):
     fig.set_size_inches(18,4*num_rows)
     for i, pair in enumerate(series_title_pairs, 1):
         plt.subplot(num_rows, 2, i)
-        plt.hist(pair[0])
+        plt.hist(pair[0], bins = bins)
         plt.title(pair[1])
     plt.tight_layout()
     plt.show()
-
+    
 def plt_metric_by_date(metric_by_date, dates, title, metric_name):
     '''
     plots a metric over a time series
